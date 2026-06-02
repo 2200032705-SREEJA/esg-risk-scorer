@@ -427,9 +427,13 @@ def generate_risk_trend(base, days=30, seed=42):
 def get_company_seed(company):
     return sum(ord(c) for c in company) % 1000
 
-def get_base_risk(company):
-    rng = np.random.default_rng(get_company_seed(company))
+def get_base_risk(company, offset=0):
+    rng = np.random.default_rng(get_company_seed(company) + offset)
     return float(rng.uniform(0.2, 0.85))
+
+# ── SESSION STATE for refresh randomization ────────────────────────────────────
+if "refresh_seed" not in st.session_state:
+    st.session_state.refresh_seed = 0
 
 def risk_color(score):
     if score >= 0.65: return "#ff2d55"
@@ -468,8 +472,8 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     selected = st.selectbox("SELECT COMPANY", COMPANIES, index=0, label_visibility="visible")
-    base = get_base_risk(selected)
-    df_risk = generate_risk_trend(base, seed=get_company_seed(selected))
+    base = get_base_risk(selected, offset=st.session_state.refresh_seed)
+    df_risk = generate_risk_trend(base, seed=get_company_seed(selected) + st.session_state.refresh_seed)
     latest_score = df_risk["risk_score"].iloc[-1]
     color = risk_color(latest_score)
 
@@ -482,6 +486,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     if st.button("↺  REFRESH DATA", use_container_width=True):
+        st.session_state.refresh_seed += 1
         st.success("✓ Dashboard refreshed.")
 
     st.markdown("""
@@ -651,16 +656,23 @@ st.markdown(events_html, unsafe_allow_html=True)
 # ── LEADERBOARD ───────────────────────────────────────────────────────────────
 st.markdown('<div class="section-header">🏆 <span>Company</span> Risk Leaderboard</div>', unsafe_allow_html=True)
 
-leaderboard = sorted([(c, get_base_risk(c)) for c in COMPANIES], key=lambda x: x[1], reverse=True)
+leaderboard = sorted(
+    [(c, get_base_risk(c, offset=st.session_state.refresh_seed)) for c in COMPANIES],
+    key=lambda x: x[1], reverse=True
+)
 col_lb1, col_lb2 = st.columns(2)
 for i, (company, score) in enumerate(leaderboard[:10]):
     col = col_lb1 if i < 5 else col_lb2
     clr = risk_color(score)
+    is_selected = company == selected
+    highlight_border = "border-left-color: #e8ff00; background: #1a1a00;" if is_selected else ""
+    highlight_name   = f"color: #e8ff00; font-weight: 700;" if is_selected else ""
+    selected_tag     = ' &nbsp;<span style="font-size:0.55rem;color:#e8ff00;letter-spacing:2px;border:1px solid #e8ff00;padding:1px 6px;">◀ SELECTED</span>' if is_selected else ""
     with col:
         st.markdown(f"""
-        <div class="lb-row">
+        <div class="lb-row" style="{highlight_border}">
             <div class="lb-rank">{i+1:02d}</div>
-            <div class="lb-name">{company}</div>
+            <div class="lb-name" style="{highlight_name}">{company}{selected_tag}</div>
             <div class="lb-bar-wrap">
                 <div class="lb-bar" style="width:{int(score*100)}%; background:{clr};"></div>
             </div>
