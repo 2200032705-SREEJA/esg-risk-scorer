@@ -191,7 +191,3 @@ The pipeline auto-fetches the latest ESG news on every launch and updates all sc
 `Python 3.10` · `HuggingFace Transformers` · `FinBERT-ESG` · `Streamlit` · `SQLite` · `Pandas` · `Plotly` · `Scikit-learn` · `NewsAPI` · `NLTK`
 
 ---
-
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
