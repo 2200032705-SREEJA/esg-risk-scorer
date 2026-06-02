@@ -32,29 +32,14 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
-/* ── HIDE STREAMLIT DEFAULT HEADER ── */
+/* ── HIDE STREAMLIT DEFAULT HEADER COMPLETELY ── */
 header[data-testid="stHeader"] {
-    background: #060d1f !important;
-    border-bottom: 1px solid rgba(0,212,255,0.1) !important;
+    display: none !important;
 }
 
-header[data-testid="stHeader"]::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 1px;
-    background: linear-gradient(90deg, rgba(0,212,255,0.4), transparent);
-}
-
-/* Hide the toolbar buttons (Fork, GitHub, menu) */
-.stToolbar {
-    background: #060d1f !important;
-}
-
-/* Hide deploy button */
-[data-testid="stToolbar"] {
-    background: #060d1f !important;
-}
+.stToolbar { display: none !important; }
+[data-testid="stToolbar"] { display: none !important; }
+[data-testid="stDecoration"] { display: none !important; }
 
 :root {
     --accent:   #00d4ff;
@@ -571,7 +556,55 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ── HERO ──────────────────────────────────────────────────────────────────────
+# ── CUSTOM TOP BAR ────────────────────────────────────────────────────────────
+st.markdown("""
+<div style="
+    background: linear-gradient(90deg, #060d1f 0%, #0b1530 40%, #060d1f 100%);
+    border-bottom: 2px solid rgba(0,212,255,0.2);
+    padding: 0.6rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0;
+    box-shadow: 0 2px 20px rgba(0,212,255,0.06);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+">
+    <div style="display:flex; align-items:center; gap:0.8rem;">
+        <span style="font-size:1.1rem;">🛡️</span>
+        <div>
+            <span style="font-family:'Orbitron',monospace; font-size:0.58rem; color:#00d4ff; letter-spacing:2px; text-transform:uppercase;">ESG Risk Monitor</span>
+            <span style="font-family:'Rajdhani',sans-serif; font-size:0.82rem; color:rgba(160,200,255,0.6); margin-left:1rem;">
+                An NLP-powered dashboard using <strong style="color:#00d4ff;">FinBERT-ESG</strong> to classify Environmental, Social &amp; Governance risk signals from financial news in real time.
+            </span>
+        </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:1.8rem; flex-shrink:0;">
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:0.85rem; font-weight:700; color:#00d4ff;">20+</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.55rem; color:rgba(160,200,255,0.35); letter-spacing:1.5px; text-transform:uppercase;">Companies</div>
+        </div>
+        <div style="width:1px; height:28px; background:rgba(0,212,255,0.15);"></div>
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:0.85rem; font-weight:700; color:#00e5a0;">3</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.55rem; color:rgba(160,200,255,0.35); letter-spacing:1.5px; text-transform:uppercase;">ESG Pillars</div>
+        </div>
+        <div style="width:1px; height:28px; background:rgba(0,212,255,0.15);"></div>
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:0.85rem; font-weight:700; color:#ffb830;">7-Day</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.55rem; color:rgba(160,200,255,0.35); letter-spacing:1.5px; text-transform:uppercase;">Forecast</div>
+        </div>
+        <div style="width:1px; height:28px; background:rgba(0,212,255,0.15);"></div>
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:0.85rem; font-weight:700; color:#7eb8ff;">NLP</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.55rem; color:rgba(160,200,255,0.35); letter-spacing:1.5px; text-transform:uppercase;">Powered</div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+
 st.markdown(f"""
 <div class="hero-banner">
     <div class="hero-badge">🛡️ Real-Time ESG Analytics</div>
@@ -580,54 +613,6 @@ st.markdown(f"""
         Environmental · Social · Governance Risk Assessment &nbsp;|&nbsp;
         NLP-powered by FinBERT-ESG &nbsp;|&nbsp;
         Updated {date.today().strftime('%b %d, %Y')}
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# ── PROJECT DESCRIPTION STRIP ─────────────────────────────────────────────────
-st.markdown("""
-<div style="
-    background: linear-gradient(90deg, rgba(0,212,255,0.08) 0%, rgba(11,21,48,0.6) 50%, rgba(0,212,255,0.04) 100%);
-    border: 1px solid rgba(0,212,255,0.15);
-    border-radius: 10px;
-    padding: 1.2rem 2rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 2.5rem;
-    flex-wrap: wrap;
-">
-    <div style="display:flex; align-items:center; gap:0.6rem;">
-        <span style="font-size:1.3rem;">🛡️</span>
-        <div>
-            <div style="font-family:'Orbitron',monospace; font-size:0.6rem; color:#00d4ff; letter-spacing:2px; text-transform:uppercase; margin-bottom:2px;">About This Project</div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:0.92rem; color:rgba(160,200,255,0.85); font-weight:500; max-width:700px; line-height:1.5;">
-                An NLP-powered ESG risk intelligence dashboard that processes financial news using
-                <strong style="color:#00d4ff;">FinBERT-ESG</strong> to classify Environmental, Social &amp; Governance signals in real time —
-                helping analysts and investors identify corporate risk exposure at a glance.
-            </div>
-        </div>
-    </div>
-    <div style="display:flex; gap:1.5rem; margin-left:auto; flex-shrink:0;">
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#00d4ff;">20+</div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">Companies</div>
-        </div>
-        <div style="width:1px; background:rgba(0,212,255,0.15);"></div>
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#00e5a0;">3</div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">ESG Pillars</div>
-        </div>
-        <div style="width:1px; background:rgba(0,212,255,0.15);"></div>
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#ffb830;">7-Day</div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">Forecast</div>
-        </div>
-        <div style="width:1px; background:rgba(0,212,255,0.15);"></div>
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#7eb8ff;">NLP</div>
-            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">Powered</div>
-        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
