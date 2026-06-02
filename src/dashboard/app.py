@@ -32,6 +32,30 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
+/* ── HIDE STREAMLIT DEFAULT HEADER ── */
+header[data-testid="stHeader"] {
+    background: #060d1f !important;
+    border-bottom: 1px solid rgba(0,212,255,0.1) !important;
+}
+
+header[data-testid="stHeader"]::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, rgba(0,212,255,0.4), transparent);
+}
+
+/* Hide the toolbar buttons (Fork, GitHub, menu) */
+.stToolbar {
+    background: #060d1f !important;
+}
+
+/* Hide deploy button */
+[data-testid="stToolbar"] {
+    background: #060d1f !important;
+}
+
 :root {
     --accent:   #00d4ff;
     --accent2:  #7eb8ff;
