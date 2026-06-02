@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red?logo=streamlit)](https://streamlit.io)
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-FinBERT--ESG-yellow?logo=huggingface)](https://huggingface.co)
+[!](https://img.shields.io/badge/HuggingFace-FinBERT--ESG-yellow?logo=huggingface)](https://huggingface.co)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
