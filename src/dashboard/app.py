@@ -18,186 +18,227 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 st.set_page_config(
     page_title="ESG Risk Monitor",
-    page_icon="⬛",
+    page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
+# ── Arctic / Orbitron / Shield Theme ──────────────────────────────────────────
+# Accent: #00d4ff (ice cyan) · #7eb8ff (steel blue) · #a8edff (frost)
+# Risk:   #00e5a0 (safe) · #ffb830 (moderate) · #ff4b6e (danger)
+# Base:   #060d1f (void navy) · #0b1530 (card) · #0f1e40 (elevated)
+
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --accent:   #00d4ff;
+    --accent2:  #7eb8ff;
+    --frost:    #a8edff;
+    --safe:     #00e5a0;
+    --mod:      #ffb830;
+    --danger:   #ff4b6e;
+    --bg:       #060d1f;
+    --card:     #0b1530;
+    --elevated: #0f1e40;
+    --border:   #1a2d55;
+    --text:     #cde0ff;
+    --muted:    rgba(160,200,255,0.35);
+}
 
 html, body, [class*="css"] {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--text);
 }
 
 .stApp {
-    background: #0a0a0a;
+    background: var(--bg);
+    background-image:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(0,212,255,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 90% 80%, rgba(126,184,255,0.04) 0%, transparent 60%);
 }
 
-/* Remove default streamlit padding */
-.block-container {
-    padding-top: 1.5rem !important;
-}
+.block-container { padding-top: 1.5rem !important; }
 
 /* ── SIDEBAR ── */
 section[data-testid="stSidebar"] {
-    background: #0a0a0a;
-    border-right: 3px solid #e8ff00;
+    background: linear-gradient(180deg, #080f24 0%, #060d1f 100%);
+    border-right: 2px solid var(--border);
+    box-shadow: 4px 0 30px rgba(0,212,255,0.04);
 }
 
 section[data-testid="stSidebar"] .stSelectbox > div > div {
-    background: #111111;
-    border: 2px solid #333333;
-    color: #ffffff;
-    font-family: 'IBM Plex Mono', monospace;
-    border-radius: 0 !important;
+    background: var(--elevated);
+    border: 1.5px solid var(--border) !important;
+    color: var(--text) !important;
+    font-family: 'Rajdhani', sans-serif !important;
+    border-radius: 6px !important;
+    font-size: 0.95rem !important;
 }
 
 section[data-testid="stSidebar"] .stButton > button {
-    background: #e8ff00 !important;
-    color: #0a0a0a !important;
-    border: 3px solid #e8ff00 !important;
-    border-radius: 0 !important;
-    font-family: 'IBM Plex Mono', monospace !important;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%) !important;
+    color: #060d1f !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-family: 'Orbitron', monospace !important;
     font-weight: 700 !important;
-    font-size: 0.78rem !important;
-    letter-spacing: 3px !important;
+    font-size: 0.65rem !important;
+    letter-spacing: 2px !important;
     text-transform: uppercase !important;
-    padding: 0.6rem 1rem !important;
+    padding: 0.7rem 1rem !important;
     width: 100% !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 0 20px rgba(0,212,255,0.25) !important;
 }
 
 section[data-testid="stSidebar"] .stButton > button:hover {
-    background: #0a0a0a !important;
-    color: #e8ff00 !important;
-    border-color: #e8ff00 !important;
+    background: linear-gradient(135deg, #33ddff 0%, #00b8e6 100%) !important;
+    box-shadow: 0 0 32px rgba(0,212,255,0.45) !important;
+    transform: translateY(-1px) !important;
 }
 
 /* ── HERO BANNER ── */
 .hero-banner {
-    background: #111111;
-    border: 3px solid #e8ff00;
-    border-radius: 0;
+    background: linear-gradient(135deg, #0b1530 0%, #0f1e40 60%, #0b1a38 100%);
+    border: 1.5px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 12px;
     padding: 2.5rem 3rem;
     margin-bottom: 1.5rem;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 0 60px rgba(0,212,255,0.06), inset 0 1px 0 rgba(0,212,255,0.1);
 }
 
 .hero-banner::before {
-    content: '';
+    content: '🛡️';
     position: absolute;
-    top: 0; right: 0;
-    width: 6px; height: 100%;
-    background: #e8ff00;
+    right: 2.5rem; top: 50%;
+    transform: translateY(-50%);
+    font-size: 6rem;
+    opacity: 0.06;
+    filter: blur(2px);
 }
 
 .hero-banner::after {
     content: '';
     position: absolute;
     bottom: 0; left: 0;
-    width: 100%; height: 6px;
-    background: linear-gradient(90deg, #e8ff00 0%, transparent 60%);
+    width: 40%; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
 }
 
 .hero-badge {
-    display: inline-block;
-    background: #e8ff00;
-    color: #0a0a0a;
-    font-size: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-size: 0.6rem;
     font-weight: 700;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    padding: 4px 14px;
-    border-radius: 0;
+    padding: 5px 14px;
+    border-radius: 20px;
     margin-bottom: 1rem;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Orbitron', monospace;
 }
 
 .hero-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 4.5rem;
-    font-weight: 400;
+    font-family: 'Orbitron', monospace;
+    font-size: 3.2rem;
+    font-weight: 900;
     color: #ffffff;
     margin: 0 0 0.3rem 0;
-    letter-spacing: 3px;
-    line-height: 0.95;
+    letter-spacing: 4px;
+    line-height: 1;
     text-transform: uppercase;
+    text-shadow: 0 0 40px rgba(0,212,255,0.2);
 }
 
 .hero-subtitle {
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.4);
+    font-size: 0.85rem;
+    color: var(--muted);
     margin: 0.8rem 0 0 0;
-    font-weight: 400;
-    letter-spacing: 1.5px;
-    font-family: 'IBM Plex Mono', monospace;
-    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 1px;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 /* ── KPI CARDS ── */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0;
+    gap: 1rem;
     margin-bottom: 1.5rem;
-    border: 3px solid #222222;
 }
 
 .kpi-card {
-    background: #111111;
-    border-right: 3px solid #222222;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
     padding: 1.6rem 1.4rem;
     position: relative;
     overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.kpi-card:last-child {
-    border-right: none;
+.kpi-card:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 24px rgba(0,212,255,0.08);
 }
 
-.kpi-card.green  { border-top: 5px solid #39ff14; }
-.kpi-card.yellow { border-top: 5px solid #e8ff00; }
-.kpi-card.red    { border-top: 5px solid #ff2d55; }
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 10px 10px 0 0;
+}
+
+.kpi-card.green::before  { background: linear-gradient(90deg, var(--safe), transparent); }
+.kpi-card.yellow::before { background: linear-gradient(90deg, var(--mod), transparent); }
+.kpi-card.red::before    { background: linear-gradient(90deg, var(--danger), transparent); }
 
 .kpi-label {
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 3px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
+    color: var(--muted);
     margin-bottom: 0.8rem;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .kpi-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3.2rem;
-    font-weight: 400;
+    font-family: 'Orbitron', monospace;
+    font-size: 2.6rem;
+    font-weight: 700;
     line-height: 1;
     margin-bottom: 0.4rem;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
-.kpi-value.green  { color: #39ff14; }
-.kpi-value.yellow { color: #e8ff00; }
-.kpi-value.red    { color: #ff2d55; }
+.kpi-value.green  { color: var(--safe);   text-shadow: 0 0 20px rgba(0,229,160,0.3); }
+.kpi-value.yellow { color: var(--mod);    text-shadow: 0 0 20px rgba(255,184,48,0.3); }
+.kpi-value.red    { color: var(--danger); text-shadow: 0 0 20px rgba(255,75,110,0.3); }
 
 .kpi-trend {
-    font-size: 0.65rem;
-    color: rgba(255,255,255,0.3);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 500;
 }
 
 /* ── SECTION HEADERS ── */
 .section-header {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    font-weight: 400;
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
     color: #ffffff;
     letter-spacing: 3px;
     margin: 2rem 0 1rem 0;
@@ -205,115 +246,120 @@ section[data-testid="stSidebar"] .stButton > button:hover {
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    border-left: 5px solid #e8ff00;
-    padding-left: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
 }
 
-.section-header span { color: #e8ff00; }
+.section-header span { color: var(--accent); }
 
 /* ── EVENT CARDS ── */
 .event-card {
-    background: #111111;
-    border: 2px solid #222222;
-    border-left: 5px solid;
-    border-radius: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid;
+    border-radius: 0 8px 8px 0;
     padding: 1rem 1.4rem;
     margin-bottom: 0.5rem;
-    transition: border-color 0.15s ease;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .event-card:hover {
-    background: #161616;
+    background: var(--elevated);
+    box-shadow: 0 4px 20px rgba(0,212,255,0.05);
 }
 
-.event-card.env { border-left-color: #39ff14; }
-.event-card.soc { border-left-color: #00c8ff; }
-.event-card.gov { border-left-color: #bf5fff; }
+.event-card.env { border-left-color: var(--safe); }
+.event-card.soc { border-left-color: var(--accent); }
+.event-card.gov { border-left-color: var(--accent2); }
 
 .event-title {
-    font-size: 0.85rem;
-    color: #e0e0e0;
+    font-size: 0.9rem;
+    color: var(--text);
     line-height: 1.5;
     margin-bottom: 0.5rem;
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 400;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 500;
 }
 
 .event-meta {
-    font-size: 0.68rem;
-    color: rgba(255,255,255,0.3);
+    font-size: 0.72rem;
+    color: var(--muted);
     display: flex;
     gap: 1rem;
     align-items: center;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .event-tag {
     display: inline-block;
     font-size: 0.6rem;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 0;
+    padding: 3px 10px;
+    border-radius: 20px;
     border: 1px solid;
+    font-family: 'Orbitron', monospace;
 }
 
-.tag-env { border-color: #39ff14; color: #39ff14; background: transparent; }
-.tag-soc { border-color: #00c8ff; color: #00c8ff; background: transparent; }
-.tag-gov { border-color: #bf5fff; color: #bf5fff; background: transparent; }
-.tag-neg { border-color: #ff2d55; color: #ff2d55; background: transparent; }
-.tag-neu { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.4); background: transparent; }
-.tag-pos { border-color: #39ff14; color: #39ff14; background: transparent; }
+.tag-env { border-color: var(--safe);   color: var(--safe);   background: rgba(0,229,160,0.08); }
+.tag-soc { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+.tag-gov { border-color: var(--accent2);color: var(--accent2);background: rgba(126,184,255,0.08); }
+.tag-neg { border-color: var(--danger); color: var(--danger); background: rgba(255,75,110,0.08); }
+.tag-neu { border-color: var(--muted);  color: var(--muted);  background: rgba(160,200,255,0.05); }
+.tag-pos { border-color: var(--safe);   color: var(--safe);   background: rgba(0,229,160,0.08); }
 
 /* ── LEADERBOARD ── */
 .lb-row {
     display: flex;
     align-items: center;
-    background: #111111;
-    border: 2px solid #1e1e1e;
-    border-left: 5px solid #333333;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
     padding: 0.75rem 1.2rem;
     margin-bottom: 0.4rem;
     gap: 1rem;
-    transition: background 0.15s ease;
+    transition: all 0.2s ease;
 }
 
 .lb-row:hover {
-    background: #161616;
-    border-left-color: #e8ff00;
+    background: var(--elevated);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,212,255,0.08);
+    transform: translateX(2px);
 }
 
 .lb-rank {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    color: rgba(255,255,255,0.2);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
     width: 28px;
     letter-spacing: 1px;
 }
 
 .lb-name {
-    font-size: 0.82rem;
-    color: #d0d0d0;
+    font-size: 0.9rem;
+    color: var(--text);
     flex: 1;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
     letter-spacing: 0.5px;
 }
 
 .lb-bar-wrap {
     flex: 2;
-    background: #1e1e1e;
-    border: 1px solid #2a2a2a;
-    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    height: 6px;
     overflow: hidden;
 }
 
-.lb-bar { height: 100%; }
+.lb-bar { height: 100%; border-radius: 4px; }
 
 .lb-score {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 400;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
     width: 52px;
     text-align: right;
     letter-spacing: 1px;
@@ -322,58 +368,63 @@ section[data-testid="stSidebar"] .stButton > button:hover {
 /* ── SIDEBAR LOGO AREA ── */
 .sidebar-logo {
     padding: 1.5rem 0 1rem;
-    border-bottom: 3px solid #e8ff00;
+    border-bottom: 1px solid var(--border);
     margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .sidebar-appname {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
     color: #ffffff;
-    letter-spacing: 4px;
-    line-height: 1;
+    letter-spacing: 3px;
+    line-height: 1.4;
+    font-weight: 700;
 }
 
 .sidebar-powered {
     font-size: 0.6rem;
-    color: rgba(255,255,255,0.25);
-    letter-spacing: 3px;
+    color: var(--muted);
+    letter-spacing: 2px;
     text-transform: uppercase;
-    margin-top: 0.3rem;
-    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 0.4rem;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 .sidebar-score-block {
-    background: #0a0a0a;
-    border: 3px solid #1e1e1e;
+    background: var(--elevated);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    border-radius: 10px;
     padding: 1.5rem;
     margin: 1.2rem 0;
     text-align: center;
-    position: relative;
+    box-shadow: 0 0 30px rgba(0,212,255,0.05);
 }
 
 .sidebar-score-label {
-    font-size: 0.6rem;
-    letter-spacing: 3px;
+    font-size: 0.58rem;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.25);
+    color: var(--muted);
     margin-bottom: 0.6rem;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Orbitron', monospace;
 }
 
 .sidebar-score-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 4rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 3.2rem;
     line-height: 1;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
+    font-weight: 900;
 }
 
 .sidebar-score-risk {
-    font-size: 0.7rem;
-    letter-spacing: 3px;
+    font-size: 0.65rem;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
-    margin-top: 0.4rem;
-    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 0.5rem;
+    font-family: 'Orbitron', monospace;
     font-weight: 600;
 }
 
@@ -381,13 +432,13 @@ section[data-testid="stSidebar"] .stButton > button:hover {
 .footer {
     margin-top: 3rem;
     padding: 1.5rem;
-    border-top: 3px solid #1e1e1e;
+    border-top: 1px solid var(--border);
     text-align: center;
-    font-size: 0.65rem;
-    color: rgba(255,255,255,0.18);
-    letter-spacing: 3px;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 2.5px;
     text-transform: uppercase;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Rajdhani', sans-serif;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -436,9 +487,9 @@ if "refresh_seed" not in st.session_state:
     st.session_state.refresh_seed = 0
 
 def risk_color(score):
-    if score >= 0.65: return "#ff2d55"
-    if score >= 0.40: return "#e8ff00"
-    return "#39ff14"
+    if score >= 0.65: return "#ff4b6e"
+    if score >= 0.40: return "#ffb830"
+    return "#00e5a0"
 
 def risk_label(score):
     if score >= 0.65: return "HIGH RISK"
@@ -465,7 +516,7 @@ def kpi_color_class(v):
 with st.sidebar:
     st.markdown("""
     <div class="sidebar-logo">
-        <div style="font-size:2rem; margin-bottom:0.4rem;">⬛</div>
+        <div style="font-size:2.5rem; margin-bottom:0.5rem;">🛡️</div>
         <div class="sidebar-appname">ESG RISK<br>MONITOR</div>
         <div class="sidebar-powered">POWERED BY SREEJA</div>
     </div>
@@ -499,7 +550,7 @@ with st.sidebar:
 # ── HERO ──────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="hero-banner">
-    <div class="hero-badge">⬛ Real-Time ESG Analytics</div>
+    <div class="hero-badge">🛡️ Real-Time ESG Analytics</div>
     <div class="hero-title">{selected}</div>
     <div class="hero-subtitle">
         Environmental · Social · Governance Risk Assessment &nbsp;|&nbsp;
@@ -543,8 +594,8 @@ st.markdown(f"""
 col_chart, col_pillar = st.columns([3, 2])
 
 CHART_BG = "rgba(0,0,0,0)"
-GRID_CLR  = "rgba(255,255,255,0.06)"
-AXIS_CLR  = "rgba(255,255,255,0.25)"
+GRID_CLR  = "rgba(0,212,255,0.06)"
+AXIS_CLR  = "rgba(160,200,255,0.4)"
 
 with col_chart:
     st.markdown('<div class="section-header">📈 <span>30-Day Risk Trend</span> + 7-Day Forecast</div>', unsafe_allow_html=True)
@@ -552,22 +603,22 @@ with col_chart:
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df_risk["date"], y=df_risk["risk_score"], name="Composite Risk",
-        line=dict(color="#e8ff00", width=2.5), mode="lines",
-        fill="tozeroy", fillcolor="rgba(232,255,0,0.04)"))
+        line=dict(color="#00d4ff", width=2.5), mode="lines",
+        fill="tozeroy", fillcolor="rgba(0,212,255,0.04)"))
     for col_name, clr, lbl in [
-        ("env_score",    "#39ff14", "Environmental"),
-        ("social_score", "#00c8ff", "Social"),
-        ("gov_score",    "#bf5fff", "Governance")
+        ("env_score",    "#00e5a0", "Environmental"),
+        ("social_score", "#7eb8ff", "Social"),
+        ("gov_score",    "#a8edff", "Governance")
     ]:
         fig.add_trace(go.Scatter(
             x=df_risk["date"], y=df_risk[col_name], name=lbl,
             line=dict(color=clr, dash="dot", width=1.3), opacity=0.65))
     fig.add_trace(go.Scatter(
         x=df_fc["date"], y=df_fc["risk_score"], name="Forecast",
-        line=dict(color="#ff2d55", dash="dash", width=2.2)))
+        line=dict(color="#ff4b6e", dash="dash", width=2.2)))
     fig.add_vrect(
         x0=df_fc["date"].iloc[0], x1=df_fc["date"].iloc[-1],
-        fillcolor="rgba(255,45,85,0.04)", line_width=0)
+        fillcolor="rgba(255,75,110,0.03)", line_width=0)
     fig.update_layout(
         plot_bgcolor=CHART_BG, paper_bgcolor=CHART_BG,
         font=dict(color=AXIS_CLR, size=10, family="IBM Plex Mono"),
@@ -583,9 +634,9 @@ with col_pillar:
     st.markdown('<div class="section-header">🎯 <span>Pillar</span> Breakdown</div>', unsafe_allow_html=True)
     fig2 = go.Figure()
     for pillar, score, clr in [
-        ("Environmental", env, "#39ff14"),
-        ("Social",        soc, "#00c8ff"),
-        ("Governance",    gov, "#bf5fff")
+        ("Environmental", env, "#00e5a0"),
+        ("Social",        soc, "#00d4ff"),
+        ("Governance",    gov, "#7eb8ff")
     ]:
         fig2.add_trace(go.Bar(
             x=[score], y=[pillar], orientation="h", name=pillar,
@@ -617,9 +668,9 @@ with col_pillar:
             borderwidth=2,
             bordercolor="#222222",
             steps=[
-                dict(range=[0, 0.40], color="rgba(57,255,20,0.06)"),
-                dict(range=[0.40,0.65], color="rgba(232,255,0,0.06)"),
-                dict(range=[0.65,1],   color="rgba(255,45,85,0.06)"),
+                dict(range=[0, 0.40], color="rgba(0,229,160,0.07)"),
+                dict(range=[0.40,0.65], color="rgba(255,184,48,0.07)"),
+                dict(range=[0.65,1],   color="rgba(255,75,110,0.07)"),
             ])))
     fig3.update_layout(
         paper_bgcolor=CHART_BG,
@@ -665,9 +716,9 @@ for i, (company, score) in enumerate(leaderboard[:10]):
     col = col_lb1 if i < 5 else col_lb2
     clr = risk_color(score)
     is_selected = company == selected
-    highlight_border = "border-left-color: #e8ff00; background: #1a1a00;" if is_selected else ""
-    highlight_name   = f"color: #e8ff00; font-weight: 700;" if is_selected else ""
-    selected_tag     = ' &nbsp;<span style="font-size:0.55rem;color:#e8ff00;letter-spacing:2px;border:1px solid #e8ff00;padding:1px 6px;">◀ SELECTED</span>' if is_selected else ""
+    highlight_border = "border-color: #00d4ff; background: rgba(0,212,255,0.05); box-shadow: 0 0 16px rgba(0,212,255,0.1);" if is_selected else ""
+    highlight_name   = f"color: #00d4ff; font-weight: 700;" if is_selected else ""
+    selected_tag     = ' &nbsp;<span style="font-size:0.5rem;color:#00d4ff;letter-spacing:2px;border:1px solid #00d4ff;padding:1px 6px;border-radius:10px;font-family:Orbitron,monospace;">◀ YOU</span>' if is_selected else ""
     with col:
         st.markdown(f"""
         <div class="lb-row" style="{highlight_border}">
