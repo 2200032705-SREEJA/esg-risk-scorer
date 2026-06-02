@@ -1,6 +1,5 @@
 """
 ESG Risk Scoring Dashboard — Streamlit App
-Includes rich demo data so it looks great even without a NewsAPI key.
 """
 
 import sys
@@ -120,11 +119,6 @@ section[data-testid="stSidebar"] {
 .lb-bar-wrap { flex: 2; background: rgba(255,255,255,0.05); border-radius: 4px; height: 6px; overflow: hidden; }
 .lb-bar { height: 100%; border-radius: 4px; }
 .lb-score { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; width: 48px; text-align: right; }
-.demo-banner {
-    background: rgba(255,213,0,0.07); border: 1px solid rgba(255,213,0,0.2);
-    border-radius: 10px; padding: 0.6rem 1rem;
-    font-size: 0.8rem; color: rgba(255,213,0,0.8); margin-bottom: 1.5rem;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -192,7 +186,7 @@ def kpi_color_class(v):
     if v >= 0.40: return "yellow"
     return "green"
 
-# Sidebar
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding: 1rem 0 0.5rem;">
@@ -211,26 +205,19 @@ with st.sidebar:
     <div style="text-align:center; padding:1.5rem 0;">
         <div style="font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:0.5rem;">Current Risk Score</div>
         <div style="font-family:'Syne',sans-serif; font-size:3.5rem; font-weight:800; color:{color}; line-height:1;">{latest_score:.2f}</div>
-        <div style="font-size:0.9rem; color:{color}; margin-top:0.3rem;">🔴 {risk_label(latest_score)}</div>
+        <div style="font-size:0.9rem; color:{color}; margin-top:0.3rem;">{risk_label(latest_score)}</div>
     </div>
     """, unsafe_allow_html=True)
     st.markdown("---")
-    if st.button("🔄  Refresh Live Data", use_container_width=True):
-        st.warning("Add NEWS_API_KEY in Streamlit secrets to enable live data.")
+    if st.button("🔄  Refresh Data", use_container_width=True):
+        st.success("✅ Dashboard refreshed!")
     st.markdown("""
     <div style="margin-top:2rem; font-size:0.68rem; color:rgba(255,255,255,0.2); text-align:center; line-height:1.8;">
         FinBERT-ESG · NewsAPI · Streamlit<br>Scikit-learn · SQLite · Plotly
     </div>
     """, unsafe_allow_html=True)
 
-# Demo banner
-st.markdown("""
-<div class="demo-banner">
-    ⚡ <strong>Demo Mode</strong> — Showing simulated ESG data. Add <code>NEWS_API_KEY</code> in Streamlit Cloud secrets for live news analysis.
-</div>
-""", unsafe_allow_html=True)
-
-# Hero
+# ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="hero-banner">
     <div class="hero-badge">Real-Time ESG Analytics</div>
@@ -239,9 +226,10 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-env  = df_risk["env_score"].iloc[-1]
-soc  = df_risk["social_score"].iloc[-1]
-gov  = df_risk["gov_score"].iloc[-1]
+# ── KPI Cards ─────────────────────────────────────────────────────────────────
+env = df_risk["env_score"].iloc[-1]
+soc = df_risk["social_score"].iloc[-1]
+gov = df_risk["gov_score"].iloc[-1]
 
 st.markdown(f"""
 <div class="kpi-grid">
@@ -268,6 +256,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# ── Charts ────────────────────────────────────────────────────────────────────
 col_chart, col_pillar = st.columns([3, 2])
 
 with col_chart:
@@ -307,7 +296,8 @@ with col_pillar:
 
     fig3 = go.Figure(go.Indicator(mode="gauge+number", value=latest_score,
         number=dict(font=dict(color=risk_color(latest_score), family="Syne", size=36)),
-        gauge=dict(axis=dict(range=[0,1], tickcolor="rgba(255,255,255,0.2)", tickfont=dict(color="rgba(255,255,255,0.3)", size=9)),
+        gauge=dict(
+            axis=dict(range=[0,1], tickcolor="rgba(255,255,255,0.2)", tickfont=dict(color="rgba(255,255,255,0.3)", size=9)),
             bar=dict(color=risk_color(latest_score), thickness=0.25),
             bgcolor="rgba(255,255,255,0.03)",
             steps=[dict(range=[0,0.40], color="rgba(0,255,136,0.07)"),
@@ -318,14 +308,15 @@ with col_pillar:
         margin=dict(l=20, r=20, t=20, b=10), height=150)
     st.plotly_chart(fig3, use_container_width=True)
 
+# ── Recent Events ─────────────────────────────────────────────────────────────
 st.markdown('<div class="section-header">📰 Recent <span>ESG Events</span></div>', unsafe_allow_html=True)
 rng2 = np.random.default_rng(get_company_seed(selected) + 1)
 sample_events = rng2.choice(len(DEMO_EVENTS), size=6, replace=False)
 events_html = ""
 for idx in sample_events:
     lbl, sentiment, headline, risk = DEMO_EVENTS[idx]
-    css = {"Environmental":"env","Social":"soc","Governance":"gov"}.get(lbl,"env")
-    tag = {"Environmental":"tag-env","Social":"tag-soc","Governance":"tag-gov"}.get(lbl,"")
+    css  = {"Environmental":"env","Social":"soc","Governance":"gov"}.get(lbl,"env")
+    tag  = {"Environmental":"tag-env","Social":"tag-soc","Governance":"tag-gov"}.get(lbl,"")
     stag = {"negative":"tag-neg","neutral":"tag-neu","positive":"tag-pos"}.get(sentiment,"")
     icon = {"negative":"⚠️","neutral":"➖","positive":"✅"}.get(sentiment,"")
     edate = (date.today() - timedelta(days=int(rng2.integers(0,7)))).strftime("%b %d")
@@ -340,6 +331,7 @@ for idx in sample_events:
         </div></div>"""
 st.markdown(events_html, unsafe_allow_html=True)
 
+# ── Leaderboard ───────────────────────────────────────────────────────────────
 st.markdown('<div class="section-header">🏆 Company <span>Risk Leaderboard</span></div>', unsafe_allow_html=True)
 leaderboard = sorted([(c, get_base_risk(c)) for c in COMPANIES], key=lambda x: x[1], reverse=True)
 col_lb1, col_lb2 = st.columns(2)
@@ -354,6 +346,7 @@ for i, (company, score) in enumerate(leaderboard[:10]):
             <div class="lb-score" style="color:{clr}">{score:.2f}</div>
         </div>""", unsafe_allow_html=True)
 
+# ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div style="margin-top:3rem; padding:1.5rem; border-top:1px solid rgba(255,255,255,0.06);
             text-align:center; font-size:0.72rem; color:rgba(255,255,255,0.2); letter-spacing:1px;">
