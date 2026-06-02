@@ -560,7 +560,55 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── KPI CARDS ─────────────────────────────────────────────────────────────────
+# ── PROJECT DESCRIPTION STRIP ─────────────────────────────────────────────────
+st.markdown("""
+<div style="
+    background: linear-gradient(90deg, rgba(0,212,255,0.08) 0%, rgba(11,21,48,0.6) 50%, rgba(0,212,255,0.04) 100%);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 10px;
+    padding: 1.2rem 2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+">
+    <div style="display:flex; align-items:center; gap:0.6rem;">
+        <span style="font-size:1.3rem;">🛡️</span>
+        <div>
+            <div style="font-family:'Orbitron',monospace; font-size:0.6rem; color:#00d4ff; letter-spacing:2px; text-transform:uppercase; margin-bottom:2px;">About This Project</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.92rem; color:rgba(160,200,255,0.85); font-weight:500; max-width:700px; line-height:1.5;">
+                An NLP-powered ESG risk intelligence dashboard that processes financial news using
+                <strong style="color:#00d4ff;">FinBERT-ESG</strong> to classify Environmental, Social &amp; Governance signals in real time —
+                helping analysts and investors identify corporate risk exposure at a glance.
+            </div>
+        </div>
+    </div>
+    <div style="display:flex; gap:1.5rem; margin-left:auto; flex-shrink:0;">
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#00d4ff;">20+</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">Companies</div>
+        </div>
+        <div style="width:1px; background:rgba(0,212,255,0.15);"></div>
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#00e5a0;">3</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">ESG Pillars</div>
+        </div>
+        <div style="width:1px; background:rgba(0,212,255,0.15);"></div>
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#ffb830;">7-Day</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">Forecast</div>
+        </div>
+        <div style="width:1px; background:rgba(0,212,255,0.15);"></div>
+        <div style="text-align:center;">
+            <div style="font-family:'Orbitron',monospace; font-size:1rem; font-weight:700; color:#7eb8ff;">NLP</div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:0.65rem; color:rgba(160,200,255,0.4); letter-spacing:1.5px; text-transform:uppercase;">Powered</div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+
 env  = df_risk["env_score"].iloc[-1]
 soc  = df_risk["social_score"].iloc[-1]
 gov  = df_risk["gov_score"].iloc[-1]
