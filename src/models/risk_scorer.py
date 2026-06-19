@@ -7,7 +7,7 @@ then aggregates to a daily company-level score (0–1 scale).
 Risk formula (per event):
     base_risk = sentiment_multiplier (negative=1.0, neutral=0.4, positive=-0.2)
     pillar_weight = ESG_WEIGHTS[esg_label]
-    event_risk = clip(base_risk * pillar_weight * esg_confidence, 0, 1)
+    event_risk = clip(base_risk * pillar_weight * esg_confidence * sentiment_confidence, 0, 1)
 
 Daily aggregation:
     Weighted mean of all event risks on that day, clipped to [0, 1].
@@ -84,7 +84,7 @@ def aggregate_daily(
 
 def risk_label(score: float) -> str:
     """Human-readable risk tier for a given score."""
-    if score >= 0.7:
+    if score >= 0.65:
         return "🔴 High Risk"
     if score >= 0.4:
         return "🟡 Moderate Risk"

@@ -4,7 +4,6 @@ Powered by Sreeja | Real DB backend | FinBERT-ESG + Keyword Fallback
 """
 
 import sys
-import subprocess
 from pathlib import Path
 from datetime import date, timedelta
 
@@ -14,6 +13,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from src.models.risk_scorer import risk_label
 
 st.set_page_config(
     page_title="ESG Risk Monitor",
@@ -200,10 +200,6 @@ def risk_color(score: float) -> str:
     if score >= 0.40: return "#ffb830"
     return "#00e5a0"
 
-def risk_label(score: float) -> str:
-    if score >= 0.65: return "HIGH RISK"
-    if score >= 0.40: return "MODERATE"
-    return "LOW RISK"
 
 def kpi_color_class(v: float) -> str:
     if v >= 0.65: return "red"
@@ -253,10 +249,19 @@ def refresh_cache():
     load_latest_events.clear()
     load_snapshot.clear()
 
+from concurrent.futures import ThreadPoolExecutor
+
+executor = ThreadPoolExecutor(max_workers=1)
+if "pipeline_future" not in st.session_state:
+    st.session_state.pipeline_future = None
+
 def run_pipeline_and_refresh():
     from src.pipeline.ingestion import run_pipeline
     run_pipeline(verbose=False)
     refresh_cache()
+
+def run_pipeline_background():
+    return executor.submit(run_pipeline_and_refresh)
 
 # ── Bootstrap DB if empty ─────────────────────────────────────────────────────
 from src.utils.db import initialize_db, get_connection
@@ -304,13 +309,26 @@ with st.sidebar:
 
     st.markdown('<div class="data-badge">✦ REAL DB DATA</div>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
+if "pipeline_running" not in st.session_state:
+    st.session_state.pipeline_running = False
 
-    if st.button("↺  REFRESH / RE-RUN PIPELINE", use_container_width=True):
-        with st.spinner("Running pipeline …"):
-            run_pipeline_and_refresh()
-        df_risk = load_risk_trend(selected)
-        st.success("✓ Pipeline complete. Data refreshed.")
-        st.rerun()
+if st.button("↺  REFRESH / RE-RUN PIPELINE", use_container_width=True):
+    if not st.session_state.pipeline_running:
+        st.session_state.pipeline_running = True
+        st.session_state.pipeline_future = run_pipeline_background()
+        st.success("✓ Pipeline started in background.")
+    else:
+        st.warning("Pipeline is already running.")
+
+if (
+    st.session_state.pipeline_running
+    and st.session_state.pipeline_future is not None
+    and st.session_state.pipeline_future.done()
+):
+    st.session_state.pipeline_running = False
+    st.session_state.pipeline_future = None
+    refresh_cache()
+    st.success("✓ Pipeline completed successfully.")
 
     st.markdown("""
     <div style="margin-top:2rem; font-size:0.6rem; color:rgba(255,255,255,0.15); line-height:2;

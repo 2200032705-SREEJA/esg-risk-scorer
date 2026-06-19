@@ -30,8 +30,9 @@ SENTIMENT_MODEL_NAME = "ProsusAI/finbert"
 # Weights for E, S, G pillars in the composite risk score
 ESG_WEIGHTS = {"Environmental": 0.4, "Social": 0.3, "Governance": 0.3}
 
-# Sentiment → risk multiplier  (negative events carry more weight)
-SENTIMENT_MULTIPLIERS = {"negative": 1.0, "neutral": 0.4, "positive": 0.05}
+# Sentiment → risk multiplier  (negative events carry more weight;
+# positive news actively reduces risk — clipped to 0 after multiplication)
+SENTIMENT_MULTIPLIERS = {"negative": 1.0, "neutral": 0.4, "positive": -0.2}
 
 # ── Companies to Monitor ──────────────────────────────────────────────────────
 COMPANIES = [
