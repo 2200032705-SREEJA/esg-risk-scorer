@@ -524,6 +524,43 @@ section[data-testid="stSidebar"] .stButton > button:hover {
   padding: 2px 6px;
   font-family: var(--mono);
 }
+
+/* ── "What this means" explainer boxes ── */
+.explain {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--r-sm);
+}
+.explain-icon {
+  color: var(--accent);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+.explain-text {
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.explain-text b { color: var(--text); font-weight: 600; }
+.sb-explain {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: var(--text-3);
+}
+.sb-explain b { color: var(--text-2); font-weight: 600; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -627,6 +664,29 @@ with st.sidebar:
     selected = st.selectbox("Company", COMPANIES, index=0, label_visibility="collapsed")
     st.markdown('</div>', unsafe_allow_html=True)
 
+    OUTPUT_OPTIONS = [
+        "All Sections",
+        "Composite Risk Score",
+        "Pillar Breakdown",
+        "Risk Trend & Forecast",
+        "Risk Gauge",
+        "Pillar Scores",
+        "Recent ESG Events",
+        "Risk Leaderboard",
+    ]
+    st.markdown('<div class="sb-section"><div class="sb-label">Show Output</div>', unsafe_allow_html=True)
+    output_view = st.selectbox("Show Output", OUTPUT_OPTIONS, index=0, label_visibility="collapsed")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    show_all        = output_view == "All Sections"
+    show_composite  = show_all or output_view == "Composite Risk Score"
+    show_pillars    = show_all or output_view == "Pillar Breakdown"
+    show_trend      = show_all or output_view == "Risk Trend & Forecast"
+    show_gauge      = show_all or output_view == "Risk Gauge"
+    show_pillarbars = show_all or output_view == "Pillar Scores"
+    show_events     = show_all or output_view == "Recent ESG Events"
+    show_leaderboard = show_all or output_view == "Risk Leaderboard"
+
     df_risk = load_risk_trend(selected)
 
     if df_risk.empty:
@@ -640,30 +700,37 @@ with st.sidebar:
     color = risk_color(latest_score)
     cls   = kpi_cls(latest_score)
 
-    st.markdown(f"""
-    <div class="sb-section">
-      <div class="sb-label">Composite Risk Score</div>
-      <div class="sb-score-card">
-        <div class="sb-score-num" style="color:{color}">{latest_score:.3f}</div>
-        <div class="sb-score-label" style="color:{color}">{risk_label_short(latest_score)}</div>
-      </div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Pillar Breakdown</div>
-      <div class="sb-pillar-row">
-        <div class="sb-pillar-name"><div class="sb-pillar-dot" style="background:#10b981"></div>Environmental</div>
-        <div class="sb-pillar-val" style="color:#10b981">{env:.3f}</div>
-      </div>
-      <div class="sb-pillar-row">
-        <div class="sb-pillar-name"><div class="sb-pillar-dot" style="background:#818cf8"></div>Social</div>
-        <div class="sb-pillar-val" style="color:#818cf8">{soc:.3f}</div>
-      </div>
-      <div class="sb-pillar-row">
-        <div class="sb-pillar-name"><div class="sb-pillar-dot" style="background:#38bdf8"></div>Governance</div>
-        <div class="sb-pillar-val" style="color:#38bdf8">{gov:.3f}</div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+    sb_html = ""
+    if show_composite:
+        sb_html += f"""
+        <div class="sb-section">
+          <div class="sb-label">Composite Risk Score</div>
+          <div class="sb-score-card">
+            <div class="sb-score-num" style="color:{color}">{latest_score:.3f}</div>
+            <div class="sb-score-label" style="color:{color}">{risk_label_short(latest_score)}</div>
+          </div>
+          <div class="sb-explain">A single 0–1 score for <b>{selected}</b> combining all ESG news. Closer to 0 = low risk, closer to 1 = high risk.</div>
+        </div>"""
+    if show_pillars:
+        sb_html += f"""
+        <div class="sb-section">
+          <div class="sb-label">Pillar Breakdown</div>
+          <div class="sb-pillar-row">
+            <div class="sb-pillar-name"><div class="sb-pillar-dot" style="background:#10b981"></div>Environmental</div>
+            <div class="sb-pillar-val" style="color:#10b981">{env:.3f}</div>
+          </div>
+          <div class="sb-pillar-row">
+            <div class="sb-pillar-name"><div class="sb-pillar-dot" style="background:#818cf8"></div>Social</div>
+            <div class="sb-pillar-val" style="color:#818cf8">{soc:.3f}</div>
+          </div>
+          <div class="sb-pillar-row">
+            <div class="sb-pillar-name"><div class="sb-pillar-dot" style="background:#38bdf8"></div>Governance</div>
+            <div class="sb-pillar-val" style="color:#38bdf8">{gov:.3f}</div>
+          </div>
+          <div class="sb-explain">The composite score is a weighted average of these three: <b>Environmental</b> 40%, <b>Social</b> 30%, <b>Governance</b> 30%.</div>
+        </div>"""
+    if sb_html:
+        st.markdown(sb_html, unsafe_allow_html=True)
 
     st.markdown('<div class="sb-section">', unsafe_allow_html=True)
 
@@ -758,13 +825,18 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # KPI Row
-st.markdown(f"""
-<div class="kpi-row">
+kpi_cards = ""
+n_cards = 0
+if show_composite:
+    kpi_cards += f"""
   <div class="kpi-card {cls}">
     <div class="kpi-label"><div class="kpi-dot" style="background:{color}"></div>Composite Risk</div>
     <div class="kpi-value {cls}">{latest_score:.3f}</div>
     <div class="kpi-risk-chip {cls}">{risk_label_short(latest_score)}</div>
-  </div>
+  </div>"""
+    n_cards += 1
+if show_pillars:
+    kpi_cards += f"""
   <div class="kpi-card env">
     <div class="kpi-label"><div class="kpi-dot" style="background:var(--env)"></div>Environmental</div>
     <div class="kpi-value" style="color:var(--env)">{env:.3f}</div>
@@ -779,9 +851,29 @@ st.markdown(f"""
     <div class="kpi-label"><div class="kpi-dot" style="background:var(--gov)"></div>Governance</div>
     <div class="kpi-value" style="color:var(--gov)">{gov:.3f}</div>
     <div class="kpi-sub">Fraud · Compliance · Board</div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+  </div>"""
+    n_cards += 3
+
+if kpi_cards:
+    explain_bits = []
+    if show_composite:
+        explain_bits.append("<b>Composite Risk</b> blends all three pillars (40% / 30% / 30%) into one overall figure.")
+    if show_pillars:
+        explain_bits.append("<b>Environmental</b>, <b>Social</b>, and <b>Governance</b> are each the average risk of that pillar's recent headlines.")
+    explain_text = " ".join(explain_bits) + " Negative news raises the score, neutral news has a small effect, and positive news lowers it."
+
+    st.markdown(f"""
+    <div class="kpi-row" style="grid-template-columns: repeat({n_cards}, 1fr);">
+      {kpi_cards}
+    </div>
+    <div class="explain">
+      <div class="explain-icon">ⓘ</div>
+      <div class="explain-text">
+        <b>What this means:</b> these numbers (0–1, higher = riskier) come from scoring every recent news headline about
+        <b>{selected}</b>. {explain_text}
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ── Charts ────────────────────────────────────────────────────────────────────
 CHART_BG  = "rgba(0,0,0,0)"
@@ -789,208 +881,276 @@ GRID_CLR  = "rgba(255,255,255,0.05)"
 AXIS_CLR  = "#585f6d"
 FONT_MONO = "IBM Plex Mono"
 
-col_chart, col_right = st.columns([5, 2])
+col_chart, col_right = (None, None)
+if show_trend and (show_gauge or show_pillarbars):
+    col_chart, col_right = st.columns([5, 2])
+elif show_trend:
+    col_chart = st.container()
+elif show_gauge or show_pillarbars:
+    col_right = st.container()
 
-with col_chart:
-    st.markdown("""
-    <div class="sec-header">
-      <div class="sec-title"><span class="sec-title-icon">↗</span>Risk Trend &amp; 7-Day Forecast</div>
-      <div class="sec-badge">30-day window</div>
-    </div>
-    """, unsafe_allow_html=True)
+if show_trend and col_chart is not None:
+    with col_chart:
+        st.markdown("""
+        <div class="sec-header">
+          <div class="sec-title"><span class="sec-title-icon">↗</span>Risk Trend &amp; 7-Day Forecast</div>
+          <div class="sec-badge">30-day window</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    if not df_risk.empty and len(df_risk) >= 2:
-        df_fc = forecast(df_risk)
-        fig = go.Figure()
+        if not df_risk.empty and len(df_risk) >= 2:
+            df_fc = forecast(df_risk)
+            fig = go.Figure()
 
-        # Shaded forecast zone
-        fig.add_vrect(
-            x0=df_fc["date"].iloc[0], x1=df_fc["date"].iloc[-1],
-            fillcolor="rgba(37,99,235,0.04)", line_width=0)
+            # Shaded forecast zone
+            fig.add_vrect(
+                x0=df_fc["date"].iloc[0], x1=df_fc["date"].iloc[-1],
+                fillcolor="rgba(37,99,235,0.04)", line_width=0)
 
-        # Pillar lines (faint)
-        for col_name, clr, lbl in [
-            ("env_score",    "#10b981", "Environmental"),
-            ("social_score", "#818cf8", "Social"),
-            ("gov_score",    "#38bdf8", "Governance"),
-        ]:
+            # Pillar lines (faint)
+            for col_name, clr, lbl in [
+                ("env_score",    "#10b981", "Environmental"),
+                ("social_score", "#818cf8", "Social"),
+                ("gov_score",    "#38bdf8", "Governance"),
+            ]:
+                fig.add_trace(go.Scatter(
+                    x=df_risk["date"], y=df_risk[col_name], name=lbl,
+                    line=dict(color=clr, dash="dot", width=1.2), opacity=0.5,
+                    showlegend=True))
+
+            # Composite area
             fig.add_trace(go.Scatter(
-                x=df_risk["date"], y=df_risk[col_name], name=lbl,
-                line=dict(color=clr, dash="dot", width=1.2), opacity=0.5,
-                showlegend=True))
+                x=df_risk["date"], y=df_risk["risk_score"], name="Composite",
+                line=dict(color="#2563eb", width=2.5), mode="lines",
+                fill="tozeroy", fillcolor="rgba(37,99,235,0.06)"))
 
-        # Composite area
-        fig.add_trace(go.Scatter(
-            x=df_risk["date"], y=df_risk["risk_score"], name="Composite",
-            line=dict(color="#2563eb", width=2.5), mode="lines",
-            fill="tozeroy", fillcolor="rgba(37,99,235,0.06)"))
+            # Forecast
+            fig.add_trace(go.Scatter(
+                x=df_fc["date"], y=df_fc["risk_score"], name="Forecast",
+                line=dict(color="#ef4444", dash="dash", width=1.8),
+                marker=dict(size=0)))
 
-        # Forecast
-        fig.add_trace(go.Scatter(
-            x=df_fc["date"], y=df_fc["risk_score"], name="Forecast",
-            line=dict(color="#ef4444", dash="dash", width=1.8),
-            marker=dict(size=0)))
+            fig.update_layout(
+                plot_bgcolor=CHART_BG, paper_bgcolor=CHART_BG,
+                font=dict(color=AXIS_CLR, size=10, family=FONT_MONO),
+                xaxis=dict(showgrid=False, color=AXIS_CLR, linecolor=GRID_CLR,
+                           tickfont=dict(size=10)),
+                yaxis=dict(showgrid=True, gridcolor=GRID_CLR, range=[0, 1],
+                           color=AXIS_CLR, tickfont=dict(size=10),
+                           tickformat=".2f"),
+                legend=dict(
+                    orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                    font=dict(size=10, family=FONT_MONO), bgcolor="rgba(0,0,0,0)",
+                    itemsizing="constant"),
+                margin=dict(l=0, r=0, t=30, b=0),
+                height=280,
+                hovermode="x unified",
+                hoverlabel=dict(bgcolor="#181b22", font=dict(family=FONT_MONO, size=11)))
+            st.plotly_chart(fig, use_container_width=True)
+            st.markdown(f"""
+            <div class="explain">
+              <div class="explain-icon">ⓘ</div>
+              <div class="explain-text">
+                <b>What this means:</b> the solid blue line is {selected}'s actual composite risk score over the last 30 days;
+                the dotted lines show the same trend for each pillar. The red dashed line is a simple <b>7-day forecast</b>
+                fitted to the recent trend &mdash; it's a projection, not a prediction of real future events.
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.info("Insufficient data. Run the pipeline to populate trend data.")
 
-        fig.update_layout(
-            plot_bgcolor=CHART_BG, paper_bgcolor=CHART_BG,
-            font=dict(color=AXIS_CLR, size=10, family=FONT_MONO),
-            xaxis=dict(showgrid=False, color=AXIS_CLR, linecolor=GRID_CLR,
-                       tickfont=dict(size=10)),
-            yaxis=dict(showgrid=True, gridcolor=GRID_CLR, range=[0, 1],
-                       color=AXIS_CLR, tickfont=dict(size=10),
-                       tickformat=".2f"),
-            legend=dict(
-                orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
-                font=dict(size=10, family=FONT_MONO), bgcolor="rgba(0,0,0,0)",
-                itemsizing="constant"),
-            margin=dict(l=0, r=0, t=30, b=0),
-            height=280,
-            hovermode="x unified",
-            hoverlabel=dict(bgcolor="#181b22", font=dict(family=FONT_MONO, size=11)))
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Insufficient data. Run the pipeline to populate trend data.")
+if (show_gauge or show_pillarbars) and col_right is not None:
+    with col_right:
+        if show_gauge:
+            # Gauge
+            st.markdown("""
+            <div class="sec-header">
+              <div class="sec-title">Risk Gauge</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-with col_right:
-    # Gauge
-    st.markdown("""
-    <div class="sec-header">
-      <div class="sec-title">Risk Gauge</div>
-    </div>
-    """, unsafe_allow_html=True)
+            fig3 = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=latest_score,
+                number=dict(font=dict(color=risk_color(latest_score), family=FONT_MONO, size=32),
+                            valueformat=".3f"),
+                gauge=dict(
+                    axis=dict(range=[0, 1], tickcolor=AXIS_CLR,
+                              tickfont=dict(color=AXIS_CLR, size=9, family=FONT_MONO),
+                              nticks=5),
+                    bar=dict(color=risk_color(latest_score), thickness=0.25),
+                    bgcolor="rgba(0,0,0,0)", borderwidth=0,
+                    steps=[
+                        dict(range=[0, 0.40],  color="rgba(16,185,129,0.08)"),
+                        dict(range=[0.40, 0.65], color="rgba(245,158,11,0.08)"),
+                        dict(range=[0.65, 1],  color="rgba(239,68,68,0.08)"),
+                    ],
+                    threshold=dict(
+                        line=dict(color=risk_color(latest_score), width=2),
+                        thickness=0.75, value=latest_score))))
+            fig3.update_layout(
+                paper_bgcolor=CHART_BG,
+                font=dict(color=AXIS_CLR, family=FONT_MONO),
+                margin=dict(l=10, r=10, t=10, b=0),
+                height=180)
+            st.plotly_chart(fig3, use_container_width=True)
+            st.markdown("""
+            <div class="explain">
+              <div class="explain-icon">ⓘ</div>
+              <div class="explain-text">
+                <b>What this means:</b> the needle is today's composite score. <b style="color:#10b981">Green</b> (0&ndash;0.40) is
+                low risk, <b style="color:#f59e0b">yellow</b> (0.40&ndash;0.65) is moderate, <b style="color:#ef4444">red</b>
+                (0.65&ndash;1.0) is high risk.
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    fig3 = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=latest_score,
-        number=dict(font=dict(color=risk_color(latest_score), family=FONT_MONO, size=32),
-                    valueformat=".3f"),
-        gauge=dict(
-            axis=dict(range=[0, 1], tickcolor=AXIS_CLR,
-                      tickfont=dict(color=AXIS_CLR, size=9, family=FONT_MONO),
-                      nticks=5),
-            bar=dict(color=risk_color(latest_score), thickness=0.25),
-            bgcolor="rgba(0,0,0,0)", borderwidth=0,
-            steps=[
-                dict(range=[0, 0.40],  color="rgba(16,185,129,0.08)"),
-                dict(range=[0.40, 0.65], color="rgba(245,158,11,0.08)"),
-                dict(range=[0.65, 1],  color="rgba(239,68,68,0.08)"),
-            ],
-            threshold=dict(
-                line=dict(color=risk_color(latest_score), width=2),
-                thickness=0.75, value=latest_score))))
-    fig3.update_layout(
-        paper_bgcolor=CHART_BG,
-        font=dict(color=AXIS_CLR, family=FONT_MONO),
-        margin=dict(l=10, r=10, t=10, b=0),
-        height=180)
-    st.plotly_chart(fig3, use_container_width=True)
+        if show_pillarbars:
+            # Pillar bars
+            st.markdown("""
+            <div class="sec-header" style="margin-top:8px;">
+              <div class="sec-title">Pillar Scores</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    # Pillar bars
-    st.markdown("""
-    <div class="sec-header" style="margin-top:8px;">
-      <div class="sec-title">Pillar Scores</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    fig2 = go.Figure()
-    for pillar, score, clr in [
-        ("Environmental", env, "#10b981"),
-        ("Social",        soc, "#818cf8"),
-        ("Governance",    gov, "#38bdf8"),
-    ]:
-        fig2.add_trace(go.Bar(
-            x=[score], y=[pillar], orientation="h", name=pillar,
-            marker=dict(color=clr, opacity=0.85),
-            text=f"{score:.3f}", textposition="inside",
-            textfont=dict(color="#ffffff", size=11, family=FONT_MONO)))
-    fig2.update_layout(
-        plot_bgcolor=CHART_BG, paper_bgcolor=CHART_BG,
-        showlegend=False, barmode="overlay",
-        xaxis=dict(range=[0, 1], showgrid=True, gridcolor=GRID_CLR,
-                   color=AXIS_CLR, tickformat=".1f",
-                   tickfont=dict(size=9)),
-        yaxis=dict(color=AXIS_CLR,
-                   tickfont=dict(family=FONT_MONO, size=10)),
-        font=dict(color=AXIS_CLR, family=FONT_MONO),
-        margin=dict(l=0, r=0, t=0, b=0),
-        height=120)
-    st.plotly_chart(fig2, use_container_width=True)
+            fig2 = go.Figure()
+            for pillar, score, clr in [
+                ("Environmental", env, "#10b981"),
+                ("Social",        soc, "#818cf8"),
+                ("Governance",    gov, "#38bdf8"),
+            ]:
+                fig2.add_trace(go.Bar(
+                    x=[score], y=[pillar], orientation="h", name=pillar,
+                    marker=dict(color=clr, opacity=0.85),
+                    text=f"{score:.3f}", textposition="inside",
+                    textfont=dict(color="#ffffff", size=11, family=FONT_MONO)))
+            fig2.update_layout(
+                plot_bgcolor=CHART_BG, paper_bgcolor=CHART_BG,
+                showlegend=False, barmode="overlay",
+                xaxis=dict(range=[0, 1], showgrid=True, gridcolor=GRID_CLR,
+                           color=AXIS_CLR, tickformat=".1f",
+                           tickfont=dict(size=9)),
+                yaxis=dict(color=AXIS_CLR,
+                           tickfont=dict(family=FONT_MONO, size=10)),
+                font=dict(color=AXIS_CLR, family=FONT_MONO),
+                margin=dict(l=0, r=0, t=0, b=0),
+                height=120)
+            st.plotly_chart(fig2, use_container_width=True)
+            st.markdown("""
+            <div class="explain">
+              <div class="explain-icon">ⓘ</div>
+              <div class="explain-text">
+                <b>What this means:</b> a side-by-side comparison of the three pillar scores, so you can see at a glance which
+                area &mdash; environmental, social, or governance &mdash; is driving the company's overall risk.
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ── Events + Leaderboard ──────────────────────────────────────────────────────
-col_ev, col_lb = st.columns([3, 2])
+col_ev, col_lb = (None, None)
+if show_events and show_leaderboard:
+    col_ev, col_lb = st.columns([3, 2])
+elif show_events:
+    col_ev = st.container()
+elif show_leaderboard:
+    col_lb = st.container()
 
-with col_ev:
-    df_events = load_latest_events(selected, limit=8)
-    st.markdown(f"""
-    <div class="sec-header" style="margin-top:8px;">
-      <div class="sec-title">Recent ESG Events</div>
-      <div class="sec-badge">{selected}</div>
-    </div>
-    """, unsafe_allow_html=True)
+if show_events and col_ev is not None:
+    with col_ev:
+        df_events = load_latest_events(selected, limit=8)
+        st.markdown(f"""
+        <div class="sec-header" style="margin-top:8px;">
+          <div class="sec-title">Recent ESG Events</div>
+          <div class="sec-badge">{selected}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    if df_events.empty:
-        st.info("No events found. Run the pipeline.")
-    else:
-        events_html = ""
-        for _, row in df_events.iterrows():
-            lbl       = row.get("esg_label", "Environmental")
-            sentiment = row.get("sentiment", "neutral")
-            headline  = row.get("headline", "")
-            risk      = float(row.get("risk_score", 0.0))
-            edate     = str(row.get("date", ""))[:10]
+        if df_events.empty:
+            st.info("No events found. Run the pipeline.")
+        else:
+            events_html = ""
+            for _, row in df_events.iterrows():
+                lbl       = row.get("esg_label", "Environmental")
+                sentiment = row.get("sentiment", "neutral")
+                headline  = row.get("headline", "")
+                risk      = float(row.get("risk_score", 0.0))
+                edate     = str(row.get("date", ""))[:10]
 
-            pillar_color = {"Environmental": "#10b981", "Social": "#818cf8", "Governance": "#38bdf8"}.get(lbl, "#10b981")
-            chip_css     = {"Environmental": "chip-env", "Social": "chip-soc", "Governance": "chip-gov"}.get(lbl, "chip-env")
-            sent_css     = {"negative": "chip-neg", "neutral": "chip-neu", "positive": "chip-pos"}.get(sentiment, "chip-neu")
-            sent_icon    = {"negative": "▼", "neutral": "—", "positive": "▲"}.get(sentiment, "—")
-            rc           = "#ef4444" if risk > 0.6 else "#f59e0b" if risk > 0.3 else "#10b981"
+                pillar_color = {"Environmental": "#10b981", "Social": "#818cf8", "Governance": "#38bdf8"}.get(lbl, "#10b981")
+                chip_css     = {"Environmental": "chip-env", "Social": "chip-soc", "Governance": "chip-gov"}.get(lbl, "chip-env")
+                sent_css     = {"negative": "chip-neg", "neutral": "chip-neu", "positive": "chip-pos"}.get(sentiment, "chip-neu")
+                sent_icon    = {"negative": "▼", "neutral": "—", "positive": "▲"}.get(sentiment, "—")
+                rc           = "#ef4444" if risk > 0.6 else "#f59e0b" if risk > 0.3 else "#10b981"
 
-            events_html += f"""
-            <div class="event-card">
-              <div class="event-pillar-bar" style="background:{pillar_color}"></div>
-              <div class="event-body">
-                <div class="event-headline">{headline}</div>
-                <div class="event-meta-row">
-                  <span class="event-chip {chip_css}">{lbl}</span>
-                  <span class="event-chip {sent_css}">{sent_icon} {sentiment.upper()}</span>
-                  <span class="event-date">{edate}</span>
-                  <span class="event-risk-val" style="color:{rc}">{risk:.3f}</span>
-                </div>
-              </div>
-            </div>"""
-        st.markdown(events_html, unsafe_allow_html=True)
+                events_html += f"""
+                <div class="event-card">
+                  <div class="event-pillar-bar" style="background:{pillar_color}"></div>
+                  <div class="event-body">
+                    <div class="event-headline">{headline}</div>
+                    <div class="event-meta-row">
+                      <span class="event-chip {chip_css}">{lbl}</span>
+                      <span class="event-chip {sent_css}">{sent_icon} {sentiment.upper()}</span>
+                      <span class="event-date">{edate}</span>
+                      <span class="event-risk-val" style="color:{rc}">{risk:.3f}</span>
+                    </div>
+                  </div>
+                </div>"""
+            st.markdown(events_html, unsafe_allow_html=True)
 
-with col_lb:
-    st.markdown("""
-    <div class="sec-header" style="margin-top:8px;">
-      <div class="sec-title">Risk Leaderboard</div>
-      <div class="sec-badge">Top 10</div>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="explain">
+          <div class="explain-icon">ⓘ</div>
+          <div class="explain-text">
+            <b>What this means:</b> the most recent distinct ESG news headlines found for <b>{selected}</b>, newest first.
+            Each card shows which pillar it relates to (Environmental / Social / Governance), whether the news was
+            positive, neutral, or negative, and the individual risk score that headline contributed.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    if not snapshot.empty:
-        top = snapshot.head(10)
-        for i, (_, row) in enumerate(top.iterrows()):
-            company = row["company"]
-            score   = float(row["risk_score"])
-            clr     = risk_color(score)
-            is_sel  = company == selected
-            rank_cls  = "top" if i < 3 else ""
-            name_cls  = "active" if is_sel else ""
-            row_cls   = "active" if is_sel else ""
-            you_tag   = '<span class="you-tag">YOU</span>' if is_sel else ""
+if show_leaderboard and col_lb is not None:
+    with col_lb:
+        st.markdown("""
+        <div class="sec-header" style="margin-top:8px;">
+          <div class="sec-title">Risk Leaderboard</div>
+          <div class="sec-badge">Top 10</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-            st.markdown(f"""
-            <div class="lb-row {row_cls}">
-              <div class="lb-rank {rank_cls}">{i+1:02d}</div>
-              <div class="lb-name {name_cls}">{company} {you_tag}</div>
-              <div class="lb-bar-wrap">
-                <div class="lb-bar" style="width:{int(score*100)}%;background:{clr}"></div>
-              </div>
-              <div class="lb-score" style="color:{clr}">{score:.3f}</div>
-            </div>""", unsafe_allow_html=True)
-    else:
-        st.info("No leaderboard data yet.")
+        if not snapshot.empty:
+            top = snapshot.head(10)
+            for i, (_, row) in enumerate(top.iterrows()):
+                company = row["company"]
+                score   = float(row["risk_score"])
+                clr     = risk_color(score)
+                is_sel  = company == selected
+                rank_cls  = "top" if i < 3 else ""
+                name_cls  = "active" if is_sel else ""
+                row_cls   = "active" if is_sel else ""
+                you_tag   = '<span class="you-tag">YOU</span>' if is_sel else ""
+
+                st.markdown(f"""
+                <div class="lb-row {row_cls}">
+                  <div class="lb-rank {rank_cls}">{i+1:02d}</div>
+                  <div class="lb-name {name_cls}">{company} {you_tag}</div>
+                  <div class="lb-bar-wrap">
+                    <div class="lb-bar" style="width:{int(score*100)}%;background:{clr}"></div>
+                  </div>
+                  <div class="lb-score" style="color:{clr}">{score:.3f}</div>
+                </div>""", unsafe_allow_html=True)
+        else:
+            st.info("No leaderboard data yet.")
+
+        st.markdown("""
+        <div class="explain">
+          <div class="explain-icon">ⓘ</div>
+          <div class="explain-text">
+            <b>What this means:</b> all monitored companies ranked by their latest composite risk score, highest risk first.
+            The <b>YOU</b> tag marks the company currently selected in the sidebar.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""

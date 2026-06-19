@@ -17,7 +17,8 @@ def get_connection() -> sqlite3.Connection:
 
 
 def initialize_db() -> None:
-    """Create tables if they don't exist."""
+    """Create tables if they don't exist, and de-duplicate any events
+    that earlier pipeline runs may have inserted more than once."""
     with get_connection() as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS esg_events (
@@ -43,15 +44,39 @@ def initialize_db() -> None:
             );
         """)
 
+        # One-time cleanup: every click of "Refresh Pipeline" used to
+        # re-insert the whole seed dataset with no duplicate check, so
+        # the same (company, date, headline) could end up in the table
+        # many times over. Collapse those down to a single row each,
+        # keeping the earliest one.
+        conn.execute("""
+            DELETE FROM esg_events
+            WHERE id NOT IN (
+                SELECT MIN(id) FROM esg_events
+                GROUP BY company, date, headline
+            )
+        """)
+
+        # Enforce uniqueness going forward so this can't happen again.
+        conn.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_esg_events_unique
+            ON esg_events(company, date, headline)
+        """)
+        conn.commit()
+
 
 def insert_event(company: str, event_date: str, headline: str,
                  esg_label: str, sentiment: str, risk_score: float,
                  source: str = "newsapi") -> None:
+    """Insert an ESG event. If this exact (company, date, headline) was
+    already recorded — e.g. because the pipeline was run before — this
+    is a no-op instead of creating a duplicate row."""
     with get_connection() as conn:
         conn.execute(
             """INSERT INTO esg_events
                (company, date, headline, esg_label, sentiment, risk_score, source)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(company, date, headline) DO NOTHING""",
             (company, event_date, headline, esg_label, sentiment, risk_score, source)
         )
 
